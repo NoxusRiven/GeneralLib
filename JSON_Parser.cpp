@@ -5,68 +5,15 @@
 
 namespace JSON
 {
-    Token JSON_Parser::next_token(std::istream& in)
+    JSON_Parser::JSON_Parser(const char* file_path)
+        : json_file(file_path)
     {
-        char c;
-        while (in.get(c))
-        {
-            switch (c)
-            {
-            case '{': return Token{ Token::LeftBrace };
-            case '}': return Token{ Token::RightBrace };
-            case '[': return Token{ Token::LeftBracket };
-            case ']': return Token{ Token::RightBracket };
-            case ':': return Token{ Token::Colon };
-            case ',': return Token{ Token::LeftBrace };
-            }
-
-            if (c == '"') {
-                std::string result;
-                while (in.get(c) && c != '"') {
-                    result += c;
-                }
-                return {Token::String, result};
-            }
-
-            if (isdigit(c) || c == '-') {
-                std::string result(1, c);
-                while (isdigit(in.peek())) {
-                    in.get(c);
-                    result += c;
-                }
-                return {Token::Number, result};
-            }
-
-            if (c == 't' || c == 'T')
-            {
-                if (in.get() == 'r' && in.get() == 'u' && in.get() == 'e')
-                    return {Token::True};
-                else
-                    throw std::runtime_error("Invalid token: expected 'true'");
-                
-            }
-
-            if (c == 'f' || c == 'F')
-            {
-                if (in.get() == 'a' && in.get() == 'l' && in.get() == 's' && in.get() == 'e')
-                    return {Token::True};
-                else
-                    throw std::runtime_error("Invalid token: expected 'false'");
-                
-            }
-
-        }
-        return Token{ Token::End };
+        this->file_path = file_path;
+        root.data = std::monostate{};
     }
 
-
-    JsonValue JSON_Parser::read_file(const char* file_path)
+    JsonValue JSON_Parser::parse_tokens()
     {
-        std::ifstream json_file(file_path, std::ios::binary);
-        JsonValue root;
-        root.data = std::monostate{};
-
-
         if (!json_file.is_open())
         {
                 std::cerr << "Could not open the file - '" << file_path << "'" << std::endl;
@@ -79,32 +26,30 @@ namespace JSON
             return root;
         }
 
-        root.data = std::map<std::string, JsonValue>{};
+        
         Token token;
-        while ((token = next_token(json_file)).type != Token::End)
+        while ((token = next_token()).type != Token::End)
         {
-            switch (token.type)
+            Token t = next_token();
+
+            switch (t.type) 
             {
-            case Token::LeftBrace:           
-                break;
-            case Token::RightBrace:
-                break;
-            case Token::LeftBracket:           
-                break;
-            case Token::RightBracket:
-                break;
-            case Token::Colon:           
-                break;
-            case Token::Comma:
-                break;
-            case Token::String:           
-                break;
-            case Token::False:
-                break;
-            case Token::True:
-                break;
-            case Token::Null:
-                break;
+                case Token::LeftBrace:
+                    return parse_object(t);
+                case Token::LeftBracket:
+                    return parse_array(t);
+                case Token::String:
+                    return JsonValue(t.value);
+                case Token::Number:
+                    return JsonValue(std::stod(t.value));
+                case Token::True:
+                    return JsonValue(true);
+                case Token::False:
+                    return JsonValue(false);
+                case Token::Null:
+                    return JsonValue();
+                default:
+                    std::cerr << "Wrong token in json file";
             }
         }
 
@@ -112,6 +57,85 @@ namespace JSON
         std::cout << "JSON file '" << file_path << "' read successfully." << std::endl;
 
         return root;
+
+    }
+
+    Token JSON_Parser::next_token()
+    {
+        char c;
+        while (json_file.get(c))
+        {
+            switch (c)
+            {
+            case '{': return Token{ Token::LeftBrace };
+            case '}': return Token{ Token::RightBrace };
+            case '[': return Token{ Token::LeftBracket };
+            case ']': return Token{ Token::RightBracket };
+            case ':': return Token{ Token::Colon };
+            case ',': return Token{ Token::LeftBrace };
+            }
+
+            if (c == '"') 
+            {
+                std::string result;
+                while (json_file.get(c) && c != '"')
+                {
+                    result += c;
+                }
+                return {Token::String, result};
+            }
+
+            if (isdigit(c) || c == '-')
+            {
+                std::string result(1, c);
+                while (isdigit(json_file.peek()))
+                {
+                    json_file.get(c);
+                    result += c;
+                }
+                return {Token::Number, result};
+            }
+
+            if (c == 't')
+            {
+                if (json_file.get() == 'r' && json_file.get() == 'u' && json_file.get() == 'e')
+                    return {Token::True};
+                else
+                    throw std::runtime_error("Invalid token: expected 'true'");
+                
+            }
+
+            if (c == 'f')
+            {
+                if (json_file.get() == 'a' && json_file.get() == 'l' && json_file.get() == 's' && json_file.get() == 'e')
+                    return {Token::False};
+                else
+                    throw std::runtime_error("Invalid token: expected 'false'");
+                
+            }
+
+            if (c == 'n')
+            {
+                if (json_file.get() == 'u' && json_file.get() == 'l' && json_file.get() == 'l')
+                    return {Token::Null};
+                else
+                    throw std::runtime_error("Invalid token: expected 'null'");
+            }
+
+        }
+        return Token{ Token::End };
+    }
+
+    JsonValue JSON_Parser::parse_object(Token token)
+    {
+        JsonValue newObj(JsonValue::j_object);
+
+        JsonValue::j_object& obj = newObj.as_object();
+
+    }
+
+    JsonValue JSON_Parser::parse_array(Token token)
+    {
 
     }
 }
