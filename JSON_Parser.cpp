@@ -12,7 +12,33 @@ namespace JSON
         root.data = std::monostate{};
     }
 
-    JsonValue JSON_Parser::parse_tokens()
+    JsonValue JSON_Parser::parse_value()
+    {
+        Token t = next_token();
+
+        //fix tab with vim xd
+            switch (t.type) 
+            {
+                case Token::LeftBrace:
+                    return parse_object();
+                case Token::LeftBracket:
+                    return parse_array();
+                case Token::String:
+                    return JsonValue(t.value);
+                case Token::Number:
+                    return JsonValue(std::stod(t.value));
+                case Token::True:
+                    return JsonValue(true);
+                case Token::False:
+                    return JsonValue(false);
+                case Token::Null:
+                    return JsonValue();
+                default:
+                    std::cerr << "Wrong token in json file";
+            }
+    }
+
+    JsonValue JSON_Parser::parse_file()
     {
         if (!json_file.is_open())
         {
@@ -30,27 +56,7 @@ namespace JSON
         Token token;
         while ((token = next_token()).type != Token::End)
         {
-            Token t = next_token();
-
-            switch (t.type) 
-            {
-                case Token::LeftBrace:
-                    return parse_object(t);
-                case Token::LeftBracket:
-                    return parse_array(t);
-                case Token::String:
-                    return JsonValue(t.value);
-                case Token::Number:
-                    return JsonValue(std::stod(t.value));
-                case Token::True:
-                    return JsonValue(true);
-                case Token::False:
-                    return JsonValue(false);
-                case Token::Null:
-                    return JsonValue();
-                default:
-                    std::cerr << "Wrong token in json file";
-            }
+            
         }
 
 
@@ -126,16 +132,50 @@ namespace JSON
         return Token{ Token::End };
     }
 
-    JsonValue JSON_Parser::parse_object(Token token)
+    JsonValue JSON_Parser::parse_object()
     {
-        JsonValue newObj(JsonValue::j_object);
+        JsonValue newJsonObject(JsonValue::j_object{});
+        
+        //making JsonValue an object and storing it in temp var
+        JsonValue::j_object& obj = std::get<JsonValue::j_object>(newJsonObject.data);
 
-        JsonValue::j_object& obj = newObj.as_object();
+        Token key = next_token();
+        if (key.type != Token::String)
+        {
+            std::cerr << "Key in json object should be a string\n";
+        }
+
+        Token colon = next_token();
+        if (colon.type != Token::Colon)
+        {
+            std::cerr << "Key and value should be separated by ':'\n";
+        }
+
+        JsonValue value = parse_value();
+        obj.insert({key.value, value});
+
+        Token checkIfEnd = next_token();
+        while (checkIfEnd.type != Token::LeftBrace)
+        {
+            if (checkIfEnd.type != Token::Comma)
+            {
+                std::cerr << "At the end of the key value pair expected ',' or '}'\n";
+                return JsonValue();
+            }
+
+            //adding next key value pair if ',' is present
+            JsonValue nextObject = parse_object();
+
+            obj.insert({key.value, nextObject});
+        }
+
+        
+        return newJsonObject;
 
     }
 
-    JsonValue JSON_Parser::parse_array(Token token)
+    JsonValue JSON_Parser::parse_array()
     {
-
+        
     }
 }

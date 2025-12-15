@@ -12,6 +12,8 @@ namespace JSON
         using j_object = std::map<std::string, JsonValue>;
         using j_array = std::vector<JsonValue>;
         using j_null = std::monostate;
+
+        //variant behaves is a better union (from what i know xD)
         std::variant<
             j_null,
             j_object,
@@ -21,6 +23,8 @@ namespace JSON
             bool,
         > data;
 
+        JsonValue(j_object obj) : data(obj) {}
+        JsonValue(j_array arr) : data(arr) {}
         JsonValue(std::string value) : data(value) {}
         JsonValue(double value) : data(value) {}
         JsonValue(bool value) : data(value) {}
@@ -44,7 +48,7 @@ namespace JSON
     class JSON_Parser
     {
     public:
-        JsonValue parse_tokens();
+        JsonValue parse_file();
         JSON_Parser(const char* file_path);
 
     private:
@@ -52,8 +56,10 @@ namespace JSON
         std::ifstream json_file;
         JsonValue root;
         Token next_token();
-        JsonValue parse_object(Token token);
-        JsonValue parse_array(Token token);
+        JsonValue parse_object();
+        JsonValue parse_array();
+        JsonValue parse_value();
+
 
     };
 }
