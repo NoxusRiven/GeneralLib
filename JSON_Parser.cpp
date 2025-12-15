@@ -46,18 +46,20 @@ namespace JSON
                 return root;
         }
 
-        if (json_file.peek() != '{')
+        Token firstFileToken = next_token();
+        if (firstFileToken.type != Token::LeftBrace)
         {
-            std::cerr << "Invalid JSON format in file - '" << file_path << "'" << std::endl;
-            return root;
+            std::cerr << "First TOKEN of JSON file has to be '{'\n";
+            return JsonValue();
         }
 
-        
-        Token token;
+        parse_object();
+
+        /*Token token;
         while ((token = next_token()).type != Token::End)
         {
             
-        }
+        }*/
 
 
         std::cout << "JSON file '" << file_path << "' read successfully." << std::endl;
@@ -176,6 +178,27 @@ namespace JSON
 
     JsonValue JSON_Parser::parse_array()
     {
+        JsonValue newJsonObject(JsonValue::j_object{});
         
+        //making JsonValue an object and storing it in temp var
+        JsonValue::j_array& arr = std::get<JsonValue::j_array>(newJsonObject.data);
+
+        JsonValue value = parse_value();
+        arr.push_back(value);
+
+        Token checkIfEnd = next_token();
+        while (checkIfEnd.type != Token::LeftBracket)
+        {
+            if (checkIfEnd.type != Token::Comma)
+            {
+                std::cerr << "At the end of the key value pair expected ',' or '}'\n";
+                return JsonValue();
+            }
+
+            //adding next key value pair if ',' is present
+            JsonValue nextObject = parse_object();
+
+            arr.push_back(nextObject);
+        }
     }
 }
