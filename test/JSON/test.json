@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "version": 1,
+    "name": "test-file",
+    "valid": true,
+    "unused": null
+  },
+
+  "items": [
+    {
+      "id": 10,
+      "tags": [ "a", "b", "c" ],
+      "data": {
+        "x": -5,
+        "y": 3.14
+      }
+    },
+    {
+      "id": 20,
+      "tags": [],
+      "data": {}
+    }
+  ],
+
+  "flags": [ true, false, true ],
+  "emptyObj": {},
+  "emptyArr": [],
+
+  "mixed": [
+    1,
+    "a",
+    false,
+    null,
+    { "k": 5 }
+  ]
+}

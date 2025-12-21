@@ -3,20 +3,39 @@
 #include <fstream>
 #include <string>
 
+
 namespace JSON
 {
+    // ------------------------------------------ JSON VALUE ------------------------------------------
+    std::string JsonValue::to_string()
+    {
+        if (std::holds_alternative<std::string>(data))
+        {
+            return std::get<std::string>(data);
+        }
+        return "not string";
+    }
+
+
+    JsonValue& JsonValue::operator[](const std::string& key)
+    {
+        return std::get<j_object>(data)[key];
+    }
+
+    JsonValue& JsonValue::operator[](size_t idx)
+    {
+        return std::get<j_array>(data)[idx];
+    }
+
+    // ------------------------------------------ JSON PARSER ------------------------------------------
     JSON_Parser::JSON_Parser(const char* file_path)
         : json_file(file_path)
     {
         this->file_path = file_path;
-        root.data = j_null{};
     }
 
-    JsonValue JSON_Parser::parse_value()
+    JsonValue JSON_Parser::parse_value(Token t)
     {
-        Token t = next_token();
-
-        //fix tab with vim xd
         switch (t.type) 
         {
             case Token::LeftBrace:
@@ -34,7 +53,8 @@ namespace JSON
             case Token::Null:
                 return JsonValue();
             default:
-                std::cerr << "Wrong token in json file";
+                std::cerr << "Wrong token in json file: " << t.type;
+                exit(-1);
         }
     }
 
@@ -53,14 +73,7 @@ namespace JSON
             return JsonValue();
         }
 
-        parse_object();
-
-        /*Token token;
-        while ((token = next_token()).type != Token::End)
-        {
-            
-        }*/
-
+        root = parse_object();
 
         std::cout << "JSON file '" << file_path << "' read successfully." << std::endl;
 
@@ -97,9 +110,14 @@ namespace JSON
             if (isdigit(c) || c == '-')
             {
                 std::string result(1, c);
-                while (isdigit(json_file.peek()))
+
+                bool dot_encountered = false;
+                while (isdigit(json_file.peek()) ||
+                       (json_file.peek() == '.' && !dot_encountered))
                 {
                     json_file.get(c);
+                    if (c == '.')
+                        dot_encountered = true;
                     result += c;
                 }
                 return {Token::Number, result};
@@ -140,9 +158,18 @@ namespace JSON
         JsonValue newJsonObject(j_object{});
         
         //making JsonValue an object and storing it in temp var
-        j_object& obj = std::get<j_object>(newJsonObject.data);
+        j_object& obj = newJsonObject.get_as<j_object>();
+        Token key, colon, t_value;
+        JsonValue j_value;
+        Token checkIfEnd = next_token();
 
-        Token key = next_token();
+        if(checkIfEnd.type == Token::RightBrace)
+        {
+            return newJsonObject;
+        }
+
+        //if not empty object, it should contain key so copy it to key token
+        key = checkIfEnd;
         if (key.type != Token::String)
         {
             std::cerr << "Key in json object should be a string\n";
@@ -150,7 +177,7 @@ namespace JSON
             exit(-1);
         }
 
-        Token colon = next_token();
+        colon = next_token();
         if (colon.type != Token::Colon)
         {
             std::cerr << "Key and value should be separated by ':'\n";
@@ -159,58 +186,48 @@ namespace JSON
 
         }
 
-        JsonValue value = parse_value();
-        obj.insert({key.value, value});
+        t_value = next_token();
+        j_value = parse_value(t_value);
+        obj.insert({key.value, j_value});
 
-        Token checkIfEnd = next_token();
+        
+        checkIfEnd = next_token();
         while (checkIfEnd.type != Token::RightBrace)
         {
-            if(checkIfEnd.type == Token::End)
-            {
-                std::cerr << "Unexpected end of file while parsing object\n";
-                exit(-1);
-            }
-
             if (checkIfEnd.type != Token::Comma)
             {
                 std::cerr << "At the end of the key value pair expected ',' or '}'\n";
                 std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< token_count << "\n";
                 std::cerr << "key value: " << key.value << "\n";
-                std::cerr << "json value: " << value.to_string() << "\n";
+                std::cerr << "json value: " << j_value.to_string() << "\n";
+                exit(-1);
             }
 
-            //adding next key value pair if ',' is present
-            JsonValue nextObject = parse_object();
-
-            obj.insert({key.value, nextObject});
-        }
-
-        Token nextToken = next_token();
-        if (nextToken.type != Token::Colon)
-        {
-            return newJsonObject;
-        }
-
-        //error chunk in json:
-        /*
-        {
-        "frames": [
-
+            key = next_token();
+            if (key.type != Token::String)
             {
-                "filename": "ghost.png",
-                "frame": {
-                    "x": 0,
-                    "y": 0,
-                    "w": 128,
-                    "h": 32
-                },
-           reads comma but expects string (key) for somereason
-           */
-        JsonValue nextValue = parse_value();
+                std::cerr << "Key in json object should be a string\n";
+                std::cerr << "Found token type: " << key.type << ", in line: "<< token_count << "\n";
+                exit(-1);
+            }
 
+            colon = next_token();
+            if (colon.type != Token::Colon)
+            {
+                std::cerr << "Key and value should be separated by ':'\n";
+                std::cerr << "Found token type: " << colon.type << ", in line: "<< token_count << "\n";
+                exit(-1);
+
+            }
+
+            t_value = next_token();
+            j_value = parse_value(t_value);
+            obj.insert({key.value, j_value});
+
+            checkIfEnd = next_token();
+        }
         
         return newJsonObject;
-
     }
 
     JsonValue JSON_Parser::parse_array()
@@ -218,30 +235,39 @@ namespace JSON
         JsonValue newJsonArray(j_array{});
         
         //making JsonValue an object and storing it in temp var
-        j_array& arr = std::get<j_array>(newJsonArray.data);
+        j_array& arr = newJsonArray.get_as<j_array>();
 
-        JsonValue value = parse_value();
+        JsonValue value; 
+        Token checkIfEnd = next_token();
+
+        if(checkIfEnd.type == Token::RightBracket)
+        {
+            return newJsonArray;
+        }
+
+        //if code reaches here, checkIfEnd is first value
+        //this will handle errors if next token is not a value
+        value = parse_value(checkIfEnd);
+        
         arr.push_back(value);
 
-        Token checkIfEnd = next_token();
+        checkIfEnd = next_token();
         while (checkIfEnd.type != Token::RightBracket)
         {
-            if(checkIfEnd.type == Token::End)
-            {
-                return newJsonArray;
-            }
-
             if (checkIfEnd.type != Token::Comma)
             {
                 std::cerr << "At the end of the element ',' or ']'\n";
-                std::cerr << "Found token type: " << checkIfEnd.type << "\n";
+                std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< token_count << "\n";
                 exit(-1);
             }
 
             //adding next key value pair if ',' is present
-            JsonValue nextObject = parse_object();
+            Token t = next_token();
+            JsonValue nextValue = parse_value(t);
 
-            arr.push_back(nextObject);
+            arr.push_back(nextValue);
+
+            checkIfEnd = next_token();
         }
 
         return newJsonArray;

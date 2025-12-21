@@ -138,14 +138,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Collision.h" />
-    <ClInclude Include="JSON_Parser.h" />
-    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="src\Collision.h" />
+    <ClInclude Include="src\JSON_Parser.h" />
+    <ClInclude Include="src\TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="JSON_Parser.cpp" />
-    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="src\Collision.cpp" />
+    <ClCompile Include="src\JSON_Parser.cpp" />
+    <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="test\JSON\test-json.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

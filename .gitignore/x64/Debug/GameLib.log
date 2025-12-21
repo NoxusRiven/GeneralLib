@@ -1,2 +1,7 @@
 ﻿  JSON_Parser.cpp
-  GameLib.vcxproj -> D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\x64\Debug\GameLib.lib
+D:\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11): warning C4099: "JSON::JsonValue": nazwa typu najpierw widoczna przy użyciu "struct" teraz widoczna przy użyciu "class"
+  (kompilowanie pliku źródłowego „JSON_Parser.cpp”)
+      D:\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11):
+      zobacz deklarację „JSON::JsonValue”
+  
+  GameLib.vcxproj -> D:\Programming\C++\GameLib\x64\Debug\GameLib.lib

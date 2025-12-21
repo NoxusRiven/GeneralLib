@@ -14,9 +14,10 @@ namespace JSON
     using j_null = std::monostate;
 
 
-    struct JsonValue 
+    class JsonValue 
     {
         //variant behaves is a better union (from what i know xD)
+    private:
         std::variant<
             j_null,
             j_object,
@@ -26,6 +27,7 @@ namespace JSON
             bool
         > data;
 
+    public:
         JsonValue(const j_object& obj) : data(obj) {}
         JsonValue(j_object&& obj) : data(std::move(obj)) {}
         JsonValue(const j_array& arr) : data(arr) {}
@@ -36,15 +38,26 @@ namespace JSON
         JsonValue(bool value) : data(value) {}
         JsonValue() : data(j_null{}) {}
 
-        std::string to_string()
+        template<typename T>
+        T& get_as()
         {
-            if (std::holds_alternative<std::string>(data))
+            if (std::holds_alternative<T>(data))
             {
-                return std::get<std::string>(data);
+                return std::get<T>(data);
             }
-            return "not string";
+            else
+            {
+                std::cerr << "JsonValue does not hold the requested type.\n";
+                exit(-1);
+            }
         }
 
+        //helper for debugging
+        std::string to_string();
+
+        //overloaded operators for convinience
+        JsonValue& operator[](const std::string& key);
+        JsonValue& operator[](size_t idx);
     };
 
     struct Token
@@ -75,7 +88,7 @@ namespace JSON
         Token next_token();
         JsonValue parse_object();
         JsonValue parse_array();
-        JsonValue parse_value();
+        JsonValue parse_value(Token t);
     };
 }
 
