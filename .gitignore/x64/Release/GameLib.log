@@ -1,0 +1,10 @@
+﻿  Arena.cpp
+  Collision.cpp
+  JSON_Parser.cpp
+  TextureManager.cpp
+  test-json.cpp
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Arena.cpp(35,1): error C1010: Nieoczekiwany koniec pliku podczas wyszukiwania prekompilowanego pliku nagłówkowego. Czy zapomniano dodać „#include "pch.h"” do źródła?
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(232,1): error C1010: Nieoczekiwany koniec pliku podczas wyszukiwania prekompilowanego pliku nagłówkowego. Czy zapomniano dodać „#include "pch.h"” do źródła?
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\JSON_Parser.cpp(273,1): error C1010: Nieoczekiwany koniec pliku podczas wyszukiwania prekompilowanego pliku nagłówkowego. Czy zapomniano dodać „#include "pch.h"” do źródła?
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\TextureManager.cpp(117,1): error C1010: Nieoczekiwany koniec pliku podczas wyszukiwania prekompilowanego pliku nagłówkowego. Czy zapomniano dodać „#include "pch.h"” do źródła?
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\test\JSON\test-json.cpp(55,1): error C1010: Nieoczekiwany koniec pliku podczas wyszukiwania prekompilowanego pliku nagłówkowego. Czy zapomniano dodać „#include "pch.h"” do źródła?

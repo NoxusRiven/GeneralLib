@@ -1,31 +1,4 @@
 ﻿  Arena.cpp
-  Collision.cpp
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Collision.h(29,44): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-  (kompilowanie pliku źródłowego „src/Collision.cpp”)
-  
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Collision.h(30,44): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-  (kompilowanie pliku źródłowego „src/Collision.cpp”)
-  
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(113,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(117,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(125,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(129,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(155,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(159,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(167,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Collision.cpp(171,58): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-  JSON_Parser.cpp
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11): warning C4099: "JSON::JsonValue": nazwa typu najpierw widoczna przy użyciu "struct" teraz widoczna przy użyciu "class"
-  (kompilowanie pliku źródłowego „src/JSON_Parser.cpp”)
-      D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11):
-      zobacz deklarację „JSON::JsonValue”
-  
-  TextureManager.cpp
-D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11): warning C4099: "JSON::JsonValue": nazwa typu najpierw widoczna przy użyciu "struct" teraz widoczna przy użyciu "class"
-  (kompilowanie pliku źródłowego „src/TextureManager.cpp”)
-      D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11):
-      zobacz deklarację „JSON::JsonValue”
-  
   test-json.cpp
 D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11): warning C4099: "JSON::JsonValue": nazwa typu najpierw widoczna przy użyciu "struct" teraz widoczna przy użyciu "class"
   (kompilowanie pliku źródłowego „test/JSON/test-json.cpp”)

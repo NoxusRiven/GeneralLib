@@ -27,8 +27,18 @@ namespace Memory
     }
 
     //skipping ptr parameter, as arena frees all at once
-    void Arena::deallocate(void* ptr = nullptr)
+    void Arena::deallocate(void* ptr)
     {
         _offset = 0;
+    }
+
+    size_t Arena::mark() const
+    {
+        return _offset;
+    }
+
+    void Arena::rollback(size_t marker)
+    {
+        _offset = marker;
     }
 }

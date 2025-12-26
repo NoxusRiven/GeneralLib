@@ -39,6 +39,7 @@ namespace TextureManager
     void TextureManager::check_texture_map(std::string& path)
     {
         std::size_t filename_start = path.find_first_of("/\\");
+        std::string fullpath = path;
         
         if(filename_start != std::string::npos)
             path = path.substr(filename_start + 1);
@@ -46,7 +47,7 @@ namespace TextureManager
 
         if(_textures.find(path) == _textures.end())
         {
-            _textures[path] = LoadTexture(path.c_str());
+            _textures[path] = LoadTexture(fullpath.c_str());
         }
     }
 
@@ -100,6 +101,7 @@ namespace TextureManager
         //destroy all sprites created
         for (Sprite* sprite : _sprites_to_destroy)
         {
+            std::cout << "Destroying sprite: " << sprite << "\n";
             sprite->~Sprite();
         }
         _sprites_to_destroy.clear();

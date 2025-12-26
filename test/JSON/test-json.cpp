@@ -1,7 +1,7 @@
 #include <iostream>
 #include "..\..\JSON_Parser.h"
 
-int run_json_test()
+void run_json_test()
 {
     using namespace JSON;
 
@@ -49,6 +49,5 @@ int run_json_test()
 
 
     std::cout << "ALL TESTS PASSED\n";
-    return 0;
 }
 
