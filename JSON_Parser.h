@@ -25,31 +25,28 @@ namespace JSON
             std::string,
             double,
             bool
-        > data;
+        > _data;
 
     public:
-        JsonValue(const j_object& obj) : data(obj) {}
-        JsonValue(j_object&& obj) : data(std::move(obj)) {}
-        JsonValue(const j_array& arr) : data(arr) {}
-        JsonValue(j_array&& arr) : data(std::move(arr)) {}
-        JsonValue(const std::string& value) : data(value) {}
-        JsonValue(std::string&& value) : data(std::move(value)) {}
-        JsonValue(double value) : data(value) {}
-        JsonValue(bool value) : data(value) {}
-        JsonValue() : data(j_null{}) {}
+        JsonValue(const j_object& obj) : _data(obj) {}
+        JsonValue(j_object&& obj) : _data(std::move(obj)) {}
+        JsonValue(const j_array& arr) : _data(arr) {}
+        JsonValue(j_array&& arr) : _data(std::move(arr)) {}
+        JsonValue(const std::string& value) : _data(value) {}
+        JsonValue(std::string&& value) : _data(std::move(value)) {}
+        JsonValue(double value) : _data(value) {}
+        JsonValue(bool value) : _data(value) {}
+        JsonValue() : _data(j_null{}) {}
 
         template<typename T>
         T& get_as()
         {
-            if (std::holds_alternative<T>(data))
+            if (!std::holds_alternative<T>(_data))
             {
-                return std::get<T>(data);
-            }
-            else
-            {
-                std::cerr << "JsonValue does not hold the requested type.\n";
+                std::cerr << "JsonValue: bad get_as<" << typeid(T).name() << ">\n";
                 exit(-1);
             }
+            return std::get<T>(_data);
         }
 
         //helper for debugging
@@ -76,19 +73,16 @@ namespace JSON
 
     class JSON_Parser
     {
-    public:
-        JsonValue parse_file();
-        JSON_Parser(const char* file_path);
-
     private:
-        int token_count = 0;
-        const char* file_path;
-        std::ifstream json_file;
-        JsonValue root;
-        Token next_token();
-        JsonValue parse_object();
-        JsonValue parse_array();
-        JsonValue parse_value(Token t);
+        int _token_count = 0;
+        JsonValue _root;
+        Token next_token(std::ifstream& json_file);
+        JsonValue parse_object(std::ifstream& json_file);
+        JsonValue parse_array(std::ifstream& json_file);
+        JsonValue parse_value(Token t, std::ifstream& json_file);
+
+    public:
+        JsonValue parse_file(const char* json_file);
     };
 }
 

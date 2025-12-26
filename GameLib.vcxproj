@@ -138,11 +138,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Collision.h" />
-    <ClInclude Include="src\JSON_Parser.h" />
-    <ClInclude Include="src\TextureManager.h" />
+    <ClInclude Include="Allocator.h" />
+    <ClInclude Include="Arena.h" />
+    <ClInclude Include="Pool.h" />
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="JSON_Parser.h" />
+    <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Arena.cpp" />
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\JSON_Parser.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />

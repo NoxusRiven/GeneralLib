@@ -1,6 +1,4 @@
-#include "JSON_Parser.h"
-
-#include <fstream>
+#include "..\JSON_Parser.h"
 #include <string>
 
 
@@ -9,39 +7,34 @@ namespace JSON
     // ------------------------------------------ JSON VALUE ------------------------------------------
     std::string JsonValue::to_string()
     {
-        if (std::holds_alternative<std::string>(data))
+        if (std::holds_alternative<std::string>(_data))
         {
-            return std::get<std::string>(data);
+            return std::get<std::string>(_data);
         }
         return "not string";
+
     }
 
 
     JsonValue& JsonValue::operator[](const std::string& key)
     {
-        return std::get<j_object>(data)[key];
+        return std::get<j_object>(_data)[key];
     }
 
     JsonValue& JsonValue::operator[](size_t idx)
     {
-        return std::get<j_array>(data)[idx];
+        return std::get<j_array>(_data)[idx];
     }
 
     // ------------------------------------------ JSON PARSER ------------------------------------------
-    JSON_Parser::JSON_Parser(const char* file_path)
-        : json_file(file_path)
-    {
-        this->file_path = file_path;
-    }
-
-    JsonValue JSON_Parser::parse_value(Token t)
+    JsonValue JSON_Parser::parse_value(Token t, std::ifstream& json_file)
     {
         switch (t.type) 
         {
             case Token::LeftBrace:
-                return parse_object();
+                return parse_object(json_file);
             case Token::LeftBracket:
-                return parse_array();
+                return parse_array(json_file);
             case Token::String:
                 return JsonValue(t.value);
             case Token::Number:
@@ -58,32 +51,36 @@ namespace JSON
         }
     }
 
-    JsonValue JSON_Parser::parse_file()
+    JsonValue JSON_Parser::parse_file(const char *file_path)
     {
+        std::ifstream json_file;
+        json_file.open(file_path);
+
         if (!json_file.is_open())
         {
                 std::cerr << "Could not open the file - '" << file_path << "'" << std::endl;
-                return root;
+                exit(-1);
         }
 
-        Token firstFileToken = next_token();
+        Token firstFileToken = next_token(json_file);
         if (firstFileToken.type != Token::LeftBrace)
         {
             std::cerr << "First TOKEN of JSON file has to be '{'\n";
-            return JsonValue();
+            exit(-1);
         }
 
-        root = parse_object();
+        _root = parse_object(json_file);
 
         std::cout << "JSON file '" << file_path << "' read successfully." << std::endl;
 
-        return root;
+        json_file.close();
+        return _root;
 
     }
 
-    Token JSON_Parser::next_token()
+    Token JSON_Parser::next_token(std::ifstream& json_file)
     {
-        token_count++;
+        _token_count++;
         char c;
         while (json_file.get(c))
         {
@@ -153,7 +150,7 @@ namespace JSON
         return Token{ Token::End };
     }
 
-    JsonValue JSON_Parser::parse_object()
+    JsonValue JSON_Parser::parse_object(std::ifstream& json_file)
     {
         JsonValue newJsonObject(j_object{});
         
@@ -161,7 +158,7 @@ namespace JSON
         j_object& obj = newJsonObject.get_as<j_object>();
         Token key, colon, t_value;
         JsonValue j_value;
-        Token checkIfEnd = next_token();
+        Token checkIfEnd = next_token(json_file);
 
         if(checkIfEnd.type == Token::RightBrace)
         {
@@ -173,64 +170,64 @@ namespace JSON
         if (key.type != Token::String)
         {
             std::cerr << "Key in json object should be a string\n";
-            std::cerr << "Found token type: " << key.type << ", in line: "<< token_count << "\n";
+            std::cerr << "Found token type: " << key.type << ", in line: "<< _token_count << "\n";
             exit(-1);
         }
 
-        colon = next_token();
+        colon = next_token(json_file);
         if (colon.type != Token::Colon)
         {
             std::cerr << "Key and value should be separated by ':'\n";
-            std::cerr << "Found token type: " << colon.type << ", in line: "<< token_count << "\n";
+            std::cerr << "Found token type: " << colon.type << ", in line: "<< _token_count << "\n";
             exit(-1);
 
         }
 
-        t_value = next_token();
-        j_value = parse_value(t_value);
+        t_value = next_token(json_file);
+        j_value = parse_value(t_value, json_file);
         obj.insert({key.value, j_value});
 
         
-        checkIfEnd = next_token();
+        checkIfEnd = next_token(json_file);
         while (checkIfEnd.type != Token::RightBrace)
         {
             if (checkIfEnd.type != Token::Comma)
             {
                 std::cerr << "At the end of the key value pair expected ',' or '}'\n";
-                std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< token_count << "\n";
+                std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< _token_count << "\n";
                 std::cerr << "key value: " << key.value << "\n";
                 std::cerr << "json value: " << j_value.to_string() << "\n";
                 exit(-1);
             }
 
-            key = next_token();
+            key = next_token(json_file);
             if (key.type != Token::String)
             {
                 std::cerr << "Key in json object should be a string\n";
-                std::cerr << "Found token type: " << key.type << ", in line: "<< token_count << "\n";
+                std::cerr << "Found token type: " << key.type << ", in line: "<< _token_count << "\n";
                 exit(-1);
             }
 
-            colon = next_token();
+            colon = next_token(json_file);
             if (colon.type != Token::Colon)
             {
                 std::cerr << "Key and value should be separated by ':'\n";
-                std::cerr << "Found token type: " << colon.type << ", in line: "<< token_count << "\n";
+                std::cerr << "Found token type: " << colon.type << ", in line: "<< _token_count << "\n";
                 exit(-1);
 
             }
 
-            t_value = next_token();
-            j_value = parse_value(t_value);
+            t_value = next_token(json_file);
+            j_value = parse_value(t_value, json_file);
             obj.insert({key.value, j_value});
 
-            checkIfEnd = next_token();
+            checkIfEnd = next_token(json_file);
         }
         
         return newJsonObject;
     }
 
-    JsonValue JSON_Parser::parse_array()
+    JsonValue JSON_Parser::parse_array(std::ifstream& json_file)
     {
         JsonValue newJsonArray(j_array{});
         
@@ -238,7 +235,7 @@ namespace JSON
         j_array& arr = newJsonArray.get_as<j_array>();
 
         JsonValue value; 
-        Token checkIfEnd = next_token();
+        Token checkIfEnd = next_token(json_file);
 
         if(checkIfEnd.type == Token::RightBracket)
         {
@@ -247,27 +244,27 @@ namespace JSON
 
         //if code reaches here, checkIfEnd is first value
         //this will handle errors if next token is not a value
-        value = parse_value(checkIfEnd);
+        value = parse_value(checkIfEnd, json_file);
         
         arr.push_back(value);
 
-        checkIfEnd = next_token();
+        checkIfEnd = next_token(json_file);
         while (checkIfEnd.type != Token::RightBracket)
         {
             if (checkIfEnd.type != Token::Comma)
             {
                 std::cerr << "At the end of the element ',' or ']'\n";
-                std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< token_count << "\n";
+                std::cerr << "Found token type: " << checkIfEnd.type << ", in line: "<< _token_count << "\n";
                 exit(-1);
             }
 
             //adding next key value pair if ',' is present
-            Token t = next_token();
-            JsonValue nextValue = parse_value(t);
+            Token t = next_token(json_file);
+            JsonValue nextValue = parse_value(t, json_file);
 
             arr.push_back(nextValue);
 
-            checkIfEnd = next_token();
+            checkIfEnd = next_token(json_file);
         }
 
         return newJsonArray;
