@@ -1,7 +1,7 @@
 My all in one "library", made mostly for me with idea that i want reusable peace of my code that i will be able to use in future projects.
 It's also ezier to finish components because they are independent of eachother.
 
-Directory "test" is filled with tests i make to check if components of the library works but can be also used as use cases to see how to use them
+Directory "test" might contain few tests i make to check if components of the library works but can be also used as use cases to see how to use them, i don't know how often i'll update it but... ye.
 
 For now its all in one many topics in one "library" so i'll add interesting materials i found on specific topics, cuz i don't know what else could be added here!
 
