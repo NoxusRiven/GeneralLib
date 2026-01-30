@@ -18,19 +18,19 @@ namespace Movement
          if (contains(entity))
                 return;
 
-         if (entity >= _sparse_indices.size())
+         /*if (entity >= _sparse_indices.size())
          {
              size_t new_size = std::max(_sparse_indices.size() * 2, entity + 1);
              _sparse_indices.resize(new_size, -1);
-         }
+         }*/
 
-        size_t dense = _dense_entities.size();
-        _sparse_indices[entity] = dense;
+        size_t dense = add_entity(entity);
+        //_sparse_indices[entity] = dense;
             
         _x.push_back(x);
         _y.push_back(y);
 
-        _dense_entities.push_back(entity);
+        //_dense_entities.push_back(entity);
      }
 
     void Positions::remove(size_t entity)
@@ -38,7 +38,7 @@ namespace Movement
         if (!contains(entity))
             return;
 
-        size_t sprite_idx = _sparse_indices[entity];
+        size_t sprite_idx = remove_entity(entity);
         size_t last_sprite_idx = _dense_entities.size() - 1;
         size_t last_entity = _dense_entities[last_sprite_idx];
 
@@ -46,22 +46,22 @@ namespace Movement
         _x[sprite_idx] = _x[last_sprite_idx];
         _y[sprite_idx] = _y[last_sprite_idx];
 
-        //update sparse index for moved entity
-        _sparse_indices[last_entity] = sprite_idx;
-        _dense_entities[sprite_idx] = last_entity;
+        ////update sparse index for moved entity
+        //_sparse_indices[last_entity] = sprite_idx;
+        //_dense_entities[sprite_idx] = last_entity;
 
         //pop back last sprite data
         _x.pop_back();
         _y.pop_back();
         _dense_entities.pop_back();
         
-        _sparse_indices[entity] = -1;
+        //_sparse_indices[entity] = -1;
     }
 
-    bool Positions::contains(size_t entity)
+    /*bool Positions::contains(size_t entity)
     {
         return entity <= _sparse_indices.size() && _sparse_indices[entity] != -1;
-    }
+    }*/
 
 
     //-------------------------- Velocities --------------------------

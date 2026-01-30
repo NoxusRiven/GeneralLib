@@ -1,17 +1,18 @@
 #pragma once
 #include <vector>
 #include "ECS.h"
+#include "Storage.h"
 
 namespace Movement
 {
-    class Positions
+    class Positions : public ECS::Storage
     {
     private:
         std::vector<float> _x;
         std::vector<float> _y;
 
-        std::vector<int32_t> _sparse_indices;
-        std::vector<size_t> _dense_entities;
+        /*std::vector<int32_t> _sparse_indices;
+        std::vector<size_t> _dense_entities;*/
 
     public:
         Positions();
