@@ -1,14 +1,15 @@
 #pragma once
-#include "Allocator.h"
+#include <vector>
 
 namespace Memory
 {
     template<typename T, size_t N>
-    class Pool : public Allocator
+    class Pool
     {
     private:
         //alignes memory for type T
         alignas(T) std::byte _buffer[sizeof(T) * N];
+
 
         //one way linked list for free nodes
         struct Node 
@@ -43,7 +44,7 @@ namespace Memory
         //use this to construct object in pool
         //Args simulate T constructor parameters
         template<typename... Args>
-        void* allocate(Args&&... args) override
+        T* allocate(Args&&... args)
         {
             //no free nodes left, return nullptr
             if (!_freeList)
@@ -57,7 +58,7 @@ namespace Memory
             return new (node) T(std::forward<Args>(args)...);
         }
 
-        void deallocate(T* obj) override
+        void free(T* obj)
         {
             //distroy object
             obj->~T();

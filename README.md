@@ -7,4 +7,11 @@ For now its all in one many topics in one "library" so i'll add interesting mate
 
 JSON:
 https://www.json.org/json-en.html
+
 https://www.geeksforgeeks.org/cpp/std-variant-in-cpp-17/
+
+Memory:
+https://stackoverflow.com/questions/71931016/using-concepts-to-create-static-polymorphic-interface
+
+https://medium.com/@sgn00/high-performance-memory-management-arena-allocators-c685c81ee338
+https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator

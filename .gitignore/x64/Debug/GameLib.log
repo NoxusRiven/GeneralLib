@@ -1,9 +1,79 @@
-﻿  Arena.cpp
-  test-json.cpp
+﻿  ECS.cpp
+  Graphics.cpp
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\ECS.cpp(42,17): error C2039: „delete_entity”: nie jest składową elementu „ECS::World”
+      D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\ECS.h(58,9):
+      zobacz deklarację „ECS::World”
+  
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\ECS.cpp(44,9): error C2065: "entity_manager": niezadeklarowany identyfikator
 D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11): warning C4099: "JSON::JsonValue": nazwa typu najpierw widoczna przy użyciu "struct" teraz widoczna przy użyciu "class"
-  (kompilowanie pliku źródłowego „test/JSON/test-json.cpp”)
+  (kompilowanie pliku źródłowego „src/Graphics.cpp”)
       D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\JSON_Parser.h(17,11):
       zobacz deklarację „JSON::JsonValue”
   
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(13,24): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(14,25): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(156,95): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(156,85): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(156,75): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Graphics.cpp(156,65): warning C4244: "argument": konwersja z "int" do "float", możliwa utrata danych
+  Movment.cpp
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(74,41): warning C4244: "=": konwersja z "float" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(74,41): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(74,41): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(74,41): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(74,41): warning C4244:         ]
+  (kompilowanie pliku źródłowego „src/Movment.cpp”)
+  
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(75,41): warning C4244: "=": konwersja z "float" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(75,41): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(75,41): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(75,41): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(75,41): warning C4244:         ]
+  (kompilowanie pliku źródłowego „src/Movment.cpp”)
+  
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(79,44): warning C4244: "return": konwersja z "_Ty" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(79,44): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(79,44): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(79,44): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(79,44): warning C4244:         ]
+  (kompilowanie pliku źródłowego „src/Movment.cpp”)
+  
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(83,44): warning C4244: "return": konwersja z "_Ty" do "float", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(83,44): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(83,44): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(83,44): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\Movment.h(83,44): warning C4244:         ]
+  (kompilowanie pliku źródłowego „src/Movment.cpp”)
+  
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(28,35): warning C4267: "=": konwersja z "size_t" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(28,35): warning C4267:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(28,35): warning C4267:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(28,35): warning C4267:             _Ty=int32_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(28,35): warning C4267:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(50,40): warning C4267: "=": konwersja z "size_t" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(50,40): warning C4267:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(50,40): warning C4267:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(50,40): warning C4267:             _Ty=int32_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(50,40): warning C4267:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(90,35): warning C4267: "=": konwersja z "size_t" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(90,35): warning C4267:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(90,35): warning C4267:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(90,35): warning C4267:             _Ty=int32_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(90,35): warning C4267:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(92,23): warning C4244: "argument": konwersja z "float" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(92,23): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(92,23): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(92,23): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(92,23): warning C4244:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(93,23): warning C4244: "argument": konwersja z "float" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(93,23): warning C4244:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(93,23): warning C4244:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(93,23): warning C4244:             _Ty=size_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(93,23): warning C4244:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(112,40): warning C4267: "=": konwersja z "size_t" do "_Ty", możliwa utrata danych
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(112,40): warning C4267:         with
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(112,40): warning C4267:         [
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(112,40): warning C4267:             _Ty=int32_t
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(112,40): warning C4267:         ]
+D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\GameLib\src\Movment.cpp(143,27): error C2059: błąd składniowy: „,”
   Generowanie kodu...
-  GameLib.vcxproj -> D:\damia\One drive\OneDrive\Pulpit\Programming\C++\GameLib\x64\Debug\GameLib.lib

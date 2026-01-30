@@ -27,7 +27,7 @@ namespace Memory
     }
 
     //skipping ptr parameter, as arena frees all at once
-    void Arena::deallocate(void* ptr)
+    void Arena::reset()
     {
         _offset = 0;
     }

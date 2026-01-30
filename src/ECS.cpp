@@ -1,0 +1,48 @@
+#include "..\ECS.h"
+
+namespace ECS
+{
+    //------------------------ Entity Manager ------------------------
+
+
+	Entity EntityManager::create()
+    {
+        uint32_t id;
+
+        if (!_free_ids.empty())
+        {
+            id = _free_ids.back();
+            _free_ids.pop_back();
+        } 
+        else
+        {
+            id = static_cast<uint32_t>(_generations.size());
+            _generations.push_back(0);
+        }
+
+        return { id, _generations[id] };
+    }
+
+    void EntityManager::destroy(Entity e) 
+    {
+        if (!is_alive(e)) return;
+
+        _generations[e.id]++;        // invalidate old handles
+        _free_ids.push_back(e.generation);   // allow reuse
+    }
+
+    bool EntityManager::is_alive(Entity e) const 
+    {
+        return e.id < _generations.size()
+            && _generations[e.id] == e.generation;
+    }
+
+
+    //------------------------ World ------------------------
+    void World::delete_entity(Entity e)
+    {
+        entity_manager.destroy(e);
+
+        //for(storage_registry.)
+    }
+}

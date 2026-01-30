@@ -138,18 +138,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Allocator.h" />
     <ClInclude Include="Arena.h" />
+    <ClInclude Include="Movment.h" />
     <ClInclude Include="Pool.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="JSON_Parser.h" />
-    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ECS.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Arena.cpp" />
     <ClCompile Include="src\Collision.cpp" />
     <ClCompile Include="src\JSON_Parser.cpp" />
-    <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="src\Graphics.cpp" />
+    <ClCompile Include="src\ECS.cpp" />
+    <ClCompile Include="src\Movment.cpp" />
     <ClCompile Include="test\JSON\test-json.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
