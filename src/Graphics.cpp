@@ -86,11 +86,6 @@ namespace Graphics
         _sparse_indices[entity] = -1;
     }
 
-    bool Sprites::contains(size_t entity)
-    {
-        return entity <= _sparse_indices.size() && _sparse_indices[entity] != -1;
-    }
-
      // -------------------------------- TEXTURE MANAGER --------------------------------
     TextureManager::TextureManager()
     {
@@ -238,6 +233,7 @@ namespace Graphics
     {
         if (!world.storage_registry.contains<Sprites>())
         {
+            printf("No sprites storage in world!\n");
             return;
         }
 

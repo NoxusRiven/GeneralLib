@@ -15,30 +15,19 @@ namespace Movement
 
      void Positions::add(size_t entity, float x, float y)
      {
-         if (contains(entity))
-                return;
-
-         /*if (entity >= _sparse_indices.size())
-         {
-             size_t new_size = std::max(_sparse_indices.size() * 2, entity + 1);
-             _sparse_indices.resize(new_size, -1);
-         }*/
-
         size_t dense = add_entity(entity);
-        //_sparse_indices[entity] = dense;
             
         _x.push_back(x);
         _y.push_back(y);
-
-        //_dense_entities.push_back(entity);
      }
 
     void Positions::remove(size_t entity)
     {
-        if (!contains(entity))
-            return;
-
         size_t sprite_idx = remove_entity(entity);
+
+        if (sprite_idx == (size_t)-1) //biggest size_t value
+            return; //entity not found
+
         size_t last_sprite_idx = _dense_entities.size() - 1;
         size_t last_entity = _dense_entities[last_sprite_idx];
 
@@ -46,22 +35,10 @@ namespace Movement
         _x[sprite_idx] = _x[last_sprite_idx];
         _y[sprite_idx] = _y[last_sprite_idx];
 
-        ////update sparse index for moved entity
-        //_sparse_indices[last_entity] = sprite_idx;
-        //_dense_entities[sprite_idx] = last_entity;
-
         //pop back last sprite data
         _x.pop_back();
         _y.pop_back();
-        _dense_entities.pop_back();
-        
-        //_sparse_indices[entity] = -1;
     }
-
-    /*bool Positions::contains(size_t entity)
-    {
-        return entity <= _sparse_indices.size() && _sparse_indices[entity] != -1;
-    }*/
 
 
     //-------------------------- Velocities --------------------------
@@ -77,15 +54,6 @@ namespace Movement
 
      void Velocities::add(size_t entity, float x, float y)
      {
-         if (contains(entity))
-                return;
-
-         if (entity >= _sparse_indices.size())
-         {
-             size_t new_size = std::max(_sparse_indices.size() * 2, entity + 1);
-             _sparse_indices.resize(new_size, -1);
-         }
-
         size_t dense = _dense_entities.size();
         _sparse_indices[entity] = dense;
             
@@ -97,10 +65,11 @@ namespace Movement
 
     void Velocities::remove(size_t entity)
     {
-        if (!contains(entity))
-            return;
+        size_t sprite_idx = remove_entity(entity);
 
-        size_t sprite_idx = _sparse_indices[entity];
+        if (sprite_idx == (size_t)-1) //biggest size_t value
+            return; //entity not found
+
         size_t last_sprite_idx = _dense_entities.size() - 1;
         size_t last_entity = _dense_entities[last_sprite_idx];
 
@@ -108,41 +77,37 @@ namespace Movement
         _vx[sprite_idx] = _vx[last_sprite_idx];
         _vy[sprite_idx] = _vy[last_sprite_idx];
 
-        //update sparse index for moved entity
-        _sparse_indices[last_entity] = sprite_idx;
-        _dense_entities[sprite_idx] = last_entity;
-
+ 
         //pop back last sprite data
         _vx.pop_back();
         _vy.pop_back();
-        _dense_entities.pop_back();
-        
-        _sparse_indices[entity] = -1;
     }
-
-    bool Velocities::contains(size_t entity)
-    {
-        return entity <= _sparse_indices.size() && _sparse_indices[entity] != -1;
-    }
-
 
     // -------------------------- Movement System --------------------------
 
     void movment(ECS::World& world, float dt)
     {
+        if (!world.storage_registry.contains<Positions>() || !world.storage_registry.contains<Velocities>())
+        {
+            printf("movment(): No position or velocity storage in world!\n");
+            return;
+        }
+
         auto& positions = world.storage_registry.get<Positions>();
         auto& velocities = world.storage_registry.get<Velocities>();
 
-        if(velocities.size_vx() != positions.size_x() ||
-           velocities.size_vy() != positions.size_y() )
-            return; //error handling
-
-        for (size_t i = 0; i < positions.size_x(); i++) 
+        if (velocities.size() != positions.size())
         {
-            positions.set(
-                positions.,
-                positions.get_x(i) + (velocities.get_vx(i) * dt),
-                positions.get_entity_y(i) + (velocities.get_vy(i) * dt)
+            printf("movement(): Positions and Velocities storage size mismatch!\n");
+            return;
+        }
+
+        for (size_t i = 0; i < positions.size(); i++) 
+        {
+            positions.set_at(
+                i,
+                positions.x_at(i) + (velocities.vx_at(i) * dt),
+                positions.y_at(i) + (velocities.vy_at(i) * dt)
             );
         }
     }

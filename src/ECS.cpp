@@ -2,6 +2,17 @@
 
 namespace ECS
 {
+    //------------------------ Storage Registry ------------------------
+
+    void StorageRegistry::remove_entity(size_t entity)
+    {
+        for (auto& [type, storage] : _storages)
+        {
+            if (storage->contains(entity))
+                storage->remove(entity);
+        }
+    }
+
     //------------------------ Entity Manager ------------------------
 
 
@@ -43,6 +54,6 @@ namespace ECS
     {
         entity_manager.destroy(e);
 
-        //for(storage_registry.)
+        storage_registry.remove_entity(e.id);
     }
 }

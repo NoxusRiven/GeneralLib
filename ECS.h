@@ -4,6 +4,7 @@
 #include <vector>
 #include <typeindex>
 #include <typeinfo>
+#include "Storage.h"
 
 
 namespace ECS
@@ -18,28 +19,30 @@ namespace ECS
 	class StorageRegistry
 	{
 	private:
-		std::map<std::type_index, void*> _storages;
+		std::map<std::type_index, Storage*> _storages;
 	
 	public:
-		template<typename T>
+		template<class Storage>
 		void add()
 		{
-			//for now im using new but later try change it for arena allocations
+			//TODO: for now im using new but later try change it for arena allocations
 			//(prolly most storages have same life span but gotta double check)
-			_storages[typeid(T)] = new T{};
+			_storages[typeid(Storage)] = new Storage{};
 		}
 
-		template<typename T>
-        T& get()
+		template<class Storage>
+        Storage& get()
         {
-            return *static_cast<T*>(_storages.at(typeid(T)));
+            return *static_cast<Storage*>(_storages.at(typeid(Storage)));
         }
 
-        template<typename T>
+        template<class Storage>
         bool contains() const
         {
-            return _storages.contains(typeid(T));
+            return _storages.contains(typeid(Storage));
         }
+
+        void remove_entity(size_t entity);
 	};
 
     class EntityManager
@@ -59,5 +62,7 @@ namespace ECS
 	{
         EntityManager entity_manager;
 		StorageRegistry storage_registry;
+
+        void delete_entity(Entity entity);
 	};
 }	

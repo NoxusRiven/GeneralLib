@@ -145,6 +145,7 @@
     <ClInclude Include="JSON_Parser.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="ECS.h" />
+    <ClInclude Include="Storage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Arena.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="src\Graphics.cpp" />
     <ClCompile Include="src\ECS.cpp" />
     <ClCompile Include="src\Movment.cpp" />
+    <ClCompile Include="src\Storage.cpp" />
     <ClCompile Include="test\JSON\test-json.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
