@@ -15,10 +15,11 @@ namespace Graphics
     struct Sprite
     {
         Texture2D* texture;
-        float x, y, width, height;
+        Vector2 posistion;
+        Vector2 size;
 
-        Sprite(Texture& texture);
-        Sprite(Texture& texture, float x, float y, float w, float h);
+        Sprite(Texture2D& texture);
+        Sprite(Texture2D& texture, Vector2 pos, Vector2 size);
     };
 
 
@@ -86,6 +87,7 @@ namespace Graphics
     class TextureManager
     {
     private:
+        //contains only stripped file name from path as key
         std::unordered_map<std::string, Texture2D> _textures;
         std::vector<Sprite*> _sprites_to_destroy;
         void check_texture_map(std::string& path);
@@ -95,23 +97,22 @@ namespace Graphics
     public:
         ~TextureManager();
 
-        static TextureManager& get_instance();
+        static TextureManager& instance();
 
         //allocationg is up to user, not new as a default allocator
         Sprite* load_texture(std::string path, Memory::Arena& mem_alloc);
         std::unordered_map<std::string, Sprite*> load_texture(std::string path, std::string atlas_json, Memory::Arena& mem_alloc);
 
         void load_texture(size_t entity, std::string path, Sprites& sprites);
-        void load_texture(std::vector<size_t> entities, std::string path, std::string atlas_json, Sprites& sprites);
+
+        Sprite load_texture(std::string path, std::string atlas_json);
+        void load_texture(std::string path, std::string atlas_json, std::vector<Sprite>& sprites);
+
+        Texture2D& get_texture(std::string path);
 
         TextureManager(const TextureManager&) = delete;
         TextureManager& operator=(const TextureManager&) = delete;
     };
-
-
-	//NOTE: this shouldn't be here, drawing have different responsibility, make separate file when u get some more functions for drawing
-	void draw_sprites(ECS::World& world);
-
 }
 
 

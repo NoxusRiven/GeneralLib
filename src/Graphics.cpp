@@ -5,24 +5,19 @@ namespace Graphics
 {
     // -------------------------------- SPRITE --------------------------------
 
-    Sprite::Sprite(Texture& texture)
+    Sprite::Sprite(Texture2D& texture)
     {
         this->texture = &texture;
-        x = 0;
-        y = 0;
-        width = texture.width;
-        height = texture.height;
+        posistion = { 0, 0 };
+        size = { (float)texture.width, (float)texture.height };
     }
 
-    Sprite::Sprite(Texture& texture, float x, float y, float w, float h)
+    Sprite::Sprite(Texture2D& texture, Vector2 pos, Vector2 size)
     {
         this->texture = &texture;
-        this->x = x;
-        this->y = y;
-        width = w;
-        height = h;
+        posistion = pos;
+        this->size = size;
     }
-
 
     Sprites::Sprites()
     {
@@ -37,53 +32,32 @@ namespace Graphics
     //TODO: might be needed fix where you can fill unused sprase indices
     void Sprites::add(size_t entity, Texture2D& t, Vector2 pos, Vector2 size)
     {
-        if (contains(entity))
-            return;
-
-        if (entity >= _sparse_indices.size()) 
-        {
-            size_t new_size = std::max(_sparse_indices.size() * 2, entity + 1);
-            _sparse_indices.resize(new_size, -1);
-        }
-
-
-
-        size_t dense = _dense_entities.size();
-        _sparse_indices[entity] = dense;
-        
+         add_entity(entity);
 
         _texture.push_back(t);
         _position.push_back(pos);
         _size.push_back(size);
-
-        _dense_entities.push_back(entity);
     }
 
     void Sprites::remove(size_t entity)
     {
-        if (!contains(entity))
-            return;
+        size_t dense = remove_entity(entity);
 
-        size_t sprite_idx = _sparse_indices[entity];
-        size_t last_sprite_idx = _dense_entities.size() - 1;
-        size_t last_entity = _dense_entities[last_sprite_idx];
+        if (dense == (size_t)-1) //biggest size_t value
+            return; //entity not found
 
-        //move last sprite to removed sprite position
-        _texture[sprite_idx] = _texture[last_sprite_idx];
-        _position[sprite_idx] = _position[last_sprite_idx];
-        _size[sprite_idx] = _size[last_sprite_idx];
+        size_t last = _dense_entities.size();
 
-        //update sparse index for moved entity
-        _sparse_indices[last_entity] = sprite_idx;
-        _dense_entities[sprite_idx] = last_entity;
+        _texture[dense] = _texture[last];
+        _position[dense] = _position[last];
+        _size[dense] = _size[last];
+
+
 
         //pop back last sprite data
         _texture.pop_back();
         _position.pop_back();
         _size.pop_back();
-        _dense_entities.pop_back();
-        
-        _sparse_indices[entity] = -1;
     }
 
      // -------------------------------- TEXTURE MANAGER --------------------------------
@@ -93,17 +67,19 @@ namespace Graphics
     }
 
 
-    TextureManager& TextureManager::get_instance()
+    TextureManager& TextureManager::instance()
     {
         static TextureManager instance;
         return instance;
     }
 
+    //use it every time u want to check data in texture map
     void TextureManager::check_texture_map(std::string& path)
     {
         std::size_t filename_start = path.find_first_of("/\\");
         std::string fullpath = path;
         
+        //alters path so that it contains only file name
         if(filename_start != std::string::npos)
             path = path.substr(filename_start + 1);
 
@@ -142,13 +118,13 @@ namespace Graphics
         auto frames_arr = json["frames"].get_as<JSON::j_array>();
         for (JSON::JsonValue obj : frames_arr)
         {
-            int sprite_x = (int)obj.get_as<JSON::j_object>()["frame"]["x"].get_as<double>();
-            int sprite_y = (int)obj.get_as<JSON::j_object>()["frame"]["y"].get_as<double>();
-            int sprite_w = (int)obj.get_as<JSON::j_object>()["frame"]["w"].get_as<double>();
-            int sprite_h = (int)obj.get_as<JSON::j_object>()["frame"]["h"].get_as<double>();
+            float sprite_x = obj.get_as<JSON::j_object>()["frame"]["x"].get_as<double>();
+            float sprite_y = obj.get_as<JSON::j_object>()["frame"]["y"].get_as<double>();
+            float sprite_w = obj.get_as<JSON::j_object>()["frame"]["w"].get_as<double>();
+            float sprite_h = obj.get_as<JSON::j_object>()["frame"]["h"].get_as<double>();
             
             void* mem = arena.allocate(sizeof(Sprite), alignof(Sprite));
-            Sprite* sprite = new (mem) Sprite( _textures[path], sprite_x, sprite_y, sprite_w, sprite_h );
+            Sprite* sprite = new (mem) Sprite(_textures[path], Vector2{ sprite_x, sprite_y }, Vector2{ sprite_w, sprite_h });
             _sprites_to_destroy.push_back(sprite);
 
             std::string name = obj.get_as<JSON::j_object>()["filename"].get_as<std::string>();
@@ -163,21 +139,37 @@ namespace Graphics
     {
         check_texture_map(path);
 
-        //create id
+            //create id
         sprites.add(
             entity, 
-            _textures[path], 
-            Vector2{ 0, 0 }, 
+                _textures[path], 
+                Vector2{ 0, 0 }, 
+                Vector2
+                {
+                    static_cast<float>(_textures[path].height), 
+                    static_cast<float>(_textures[path].width)
+                } 
+            );
+        }
+
+     Sprite TextureManager::load_texture(std::string path, std::string atlas_json)    
+     {
+        check_texture_map(path);
+
+        return Sprite
+        { 
+            _textures[path],
+            Vector2{ 0, 0 },
             Vector2
             {
-                static_cast<float>(_textures[path].height), 
+                static_cast<float>(_textures[path].height),
                 static_cast<float>(_textures[path].width)
-            } 
-        );
-    }
+            }
+        };
+     }
 
     //user should know how many sprites are created from atlas
-    void TextureManager::load_texture(std::vector<size_t> entities, std::string path, std::string atlas_json, Sprites& sprites)
+    void TextureManager::load_texture(std::string path, std::string atlas_json, std::vector<Sprite>& sprites)
     {
         check_texture_map(path);
 
@@ -195,18 +187,23 @@ namespace Graphics
             int sprite_w = (int)obj.get_as<JSON::j_object>()["frame"]["w"].get_as<double>();
             int sprite_h = (int)obj.get_as<JSON::j_object>()["frame"]["h"].get_as<double>();
 
-            sprites.add(
-                entities[counter++],
-                _textures[path], 
-                Vector2{ static_cast<float>(sprite_x), static_cast<float>(sprite_y) }, 
-                Vector2{ static_cast<float>(sprite_w), static_cast<float>(sprite_h) } 
+            sprites.push_back(
+                Sprite
+                {
+                    _textures[path],
+                    Vector2{ static_cast<float>(sprite_x), static_cast<float>(sprite_y) },
+                    Vector2{ static_cast<float>(sprite_w), static_cast<float>(sprite_h) } 
+                }
             );
-
-            //just in case program doesnt crash if not enough entities provided
-            if(counter >= entities.size())
-                break;
         }
+    }
 
+    Texture2D& TextureManager::get_texture(std::string path)
+    {
+        check_texture_map(path);
+
+        //constains only file name
+        return _textures[path];
     }
 
     TextureManager::~TextureManager()
@@ -226,18 +223,4 @@ namespace Graphics
         }
         _textures.clear();
     }
-
-//------------------------------- Systems --------------------------------------------
-
-    void draw_sprites(ECS::World & world)
-    {
-        if (!world.storage_registry.contains<Sprites>())
-        {
-            printf("No sprites storage in world!\n");
-            return;
-        }
-
-        auto& sprites = world.storage_registry.get<Sprites>();
-    }
-
 }

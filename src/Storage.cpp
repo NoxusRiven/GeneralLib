@@ -2,10 +2,10 @@
 
 namespace ECS
 {
-    size_t Storage::add_entity(size_t e)
+    void Storage::add_entity(size_t e)
     {
         if(contains(e))
-            return _sparse_indices[e];
+            return;
 
         if (e >= _sparse_indices.size())
         {
@@ -21,7 +21,6 @@ namespace ECS
         size_t dense = _dense_entities.size();
         _dense_entities.push_back(e);
         _sparse_indices[e] = dense;
-        return dense;
     }
 
     size_t Storage::remove_entity(size_t e)

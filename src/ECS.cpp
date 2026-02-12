@@ -31,6 +31,8 @@ namespace ECS
             _generations.push_back(0);
         }
 
+        printf("Created entity { id:%d, gen:%d }\n", id, _generations[id]);
+
         return { id, _generations[id] };
     }
 
@@ -38,8 +40,11 @@ namespace ECS
     {
         if (!is_alive(e)) return;
 
+        printf("Destroyed entity { id:%d, gen:%d }\n", e.id, _generations[e.id]);
+
+
         _generations[e.id]++;        // invalidate old handles
-        _free_ids.push_back(e.generation);   // allow reuse
+        _free_ids.push_back(e.id);   // allow reuse
     }
 
     bool EntityManager::is_alive(Entity e) const 

@@ -9,7 +9,7 @@ namespace ECS
         std::vector<size_t> _dense_entities;
         std::vector<int32_t> _sparse_indices;
         
-        size_t add_entity(size_t entity);
+        void add_entity(size_t entity);
         size_t remove_entity(size_t entity);
 
     public:

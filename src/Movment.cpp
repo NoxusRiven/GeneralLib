@@ -15,7 +15,7 @@ namespace Movement
 
      void Positions::add(size_t entity, float x, float y)
      {
-        size_t dense = add_entity(entity);
+        add_entity(entity);
             
         _x.push_back(x);
         _y.push_back(y);
@@ -28,8 +28,8 @@ namespace Movement
         if (sprite_idx == (size_t)-1) //biggest size_t value
             return; //entity not found
 
-        size_t last_sprite_idx = _dense_entities.size() - 1;
-        size_t last_entity = _dense_entities[last_sprite_idx];
+        //removed entity in method above so no need to use -1
+        size_t last_sprite_idx = _dense_entities.size();
 
         //move last sprite to removed sprite position
         _x[sprite_idx] = _x[last_sprite_idx];
@@ -54,28 +54,24 @@ namespace Movement
 
      void Velocities::add(size_t entity, float x, float y)
      {
-        size_t dense = _dense_entities.size();
-        _sparse_indices[entity] = dense;
-            
+         add_entity(entity);
+
         _vx.push_back(x);
         _vy.push_back(y);
-
-        _dense_entities.push_back(entity);
      }
 
     void Velocities::remove(size_t entity)
     {
-        size_t sprite_idx = remove_entity(entity);
+        size_t dense = remove_entity(entity);
 
-        if (sprite_idx == (size_t)-1) //biggest size_t value
+        if (dense == (size_t)-1) //biggest size_t value
             return; //entity not found
 
-        size_t last_sprite_idx = _dense_entities.size() - 1;
-        size_t last_entity = _dense_entities[last_sprite_idx];
+        size_t last = _dense_entities.size();
 
         //move last sprite to removed sprite position
-        _vx[sprite_idx] = _vx[last_sprite_idx];
-        _vy[sprite_idx] = _vy[last_sprite_idx];
+        _vx[dense] = _vx[last];
+        _vy[dense] = _vy[last];
 
  
         //pop back last sprite data
@@ -87,7 +83,8 @@ namespace Movement
 
     void movment(ECS::World& world, float dt)
     {
-        if (!world.storage_registry.contains<Positions>() || !world.storage_registry.contains<Velocities>())
+        if (!world.storage_registry.contains<Positions>() || 
+            !world.storage_registry.contains<Velocities>())
         {
             printf("movment(): No position or velocity storage in world!\n");
             return;
