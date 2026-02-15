@@ -2,87 +2,112 @@
 
 #include "raylib.h"
 
-#include <memory>
+#include "ECS.h"
 #include <vector>
-#include <map>
-#include <unordered_map>
-#include <iostream>
+
+#define QUADTREE_MAX_DEPTH 5
+#define QUADTREE_MAX_OBJECTS 10
 
 namespace Collision
 {
-	struct Size
-	{
-		float width;
-		float height;
-	};
 
-    class Box
+    struct Box
+    {
+        Vector2 size;
+        bool solid;
+
+        Box(Vector2 size, bool solid);
+    };
+
+
+    class Boxes : public ECS::Storage
+    {
+    private:
+        std::vector<Vector2> _size;
+        std::vector<bool> _solid;
+
+    public:
+        Boxes();
+
+        void add(size_t entity, Vector2 size, bool solid);
+        void remove(size_t entity) override;
+
+        void set_entity(size_t entity, Vector2 size, bool solid)
+        {
+            size_t idx = dense_index(entity);
+            _size[idx] = size;
+            _solid[idx] = solid;
+        }
+
+        void set_at(size_t idx, Vector2 size, bool solid)
+        {
+            _size[idx] = size;
+            _solid[idx] = solid;
+        }
+
+        //use for single entity access
+        Vector2 get_size(size_t entity)
+        {
+            return _size[dense_index(entity)];
+        }
+
+        bool get_solid(size_t entity)
+        {
+            return _solid[dense_index(entity)];
+        }
+
+        //use for iterating over all entities
+        Vector2 size_at(size_t idx)
+        {
+            return _size[idx];
+        }
+
+        bool solid_at(size_t idx)
+        {
+            return _solid[idx];
+        }
+
+
+    };
+
+    class QuadNode
     {
     private:
         Rectangle _bounds;
-        bool _solid;
+        std::vector<size_t> _objects_idx;
+        const size_t _depth;
 
+        QuadNode* _children[4] = { nullptr,  nullptr, nullptr, nullptr };
+
+        void split(ECS::World& world, const std::vector<size_t>& objects);
     public:
-        Box(Rectangle rect, bool isSolid);
+        QuadNode(size_t depth);
 
-        Rectangle get_bounds() { return _bounds; }
-        void set_x(int newX) { _bounds.x = newX; }
-        void set_y(int newY) { _bounds.y = newY; }
+        bool is_leaf()
+        {
+            return _children[0] == nullptr;
+        }
 
-        bool get_solid() { return _solid; }
+        void build(Rectangle rect, ECS::World& world, const std::vector<size_t>& objects);
+ 
+        void search(size_t idx, ECS::World& world, std::vector<size_t>& result);
+
+        void free_children();
+
+        Rectangle get_bounds()
+        {
+            return _bounds;
+        }
     };
 
+    struct QuadTree
+    {
+        QuadNode* _root;
 
+        QuadTree(Rectangle bounds, ECS::World& world, const std::vector<size_t>& objects);
+        ~QuadTree();
 
-	struct BoxTypes
-	{
-		std::vector<std::shared_ptr<Box>> static_boxes;
-		std::vector<std::shared_ptr<Box>> dynamic_boxes;
+        void search(size_t idx, ECS::World& world, std::vector<size_t>& result);
     };
 
-	class SectorGrid
-	{
-	private:
-		std::map<std::pair<int, int>, BoxTypes> _sectors;
-		std::unordered_map<std::shared_ptr<Box>, std::vector<std::pair<int,int>>> _object_to_sectors;
-
-        int _sector_size;
-
-
-	public:
-		SectorGrid(Size map_size, BoxTypes objects, int sector_size);
-        BoxTypes get_boxes_from_sector(std::shared_ptr<Box> box);
-
-	};
-
-	class CollisionManager
-	{
-
-	private:
-		// map of pair and 2 vectors
-		// pair: x,y of sector ; SectorBoxes: container for static and dynamic box vectors
-
-		Size _map_size;
-        SectorGrid _sector_grid;
-
-	public:
-		
-		CollisionManager(Size map_size, BoxTypes boxes);
-
-		bool check_box_collision(Box& box1, Box& box2);
-		bool handle_solid_box_collision(Box& movingBox, Box& box);
-
-		std::vector<std::shared_ptr<Box>> check_entity_collision(Box& entity);
-
-		//testing
-		Rectangle handle_solid_box_colli_rect(Box& movingBox, Box& box);
-
-
-		//for efficient collisions with sectors
-		//CollisionManager(Vector2 map_size, std::vector<std::shared_ptr<Box>>& static_b, std::vector<std::shared_ptr<Box>>& dynamic_b, int hitbox_cell_size);
-		std::vector<std::shared_ptr<Box>> check_entity_collision_g(Box& entity);
-	};
-	
 }
-
-

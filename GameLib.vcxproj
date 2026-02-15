@@ -139,9 +139,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Arena.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Movment.h" />
     <ClInclude Include="Pool.h" />
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="JSON_Parser.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="ECS.h" />

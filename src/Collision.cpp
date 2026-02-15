@@ -1,231 +1,251 @@
 #include "..\Collision.h"
+#include "..\Movment.h"
+
 
 namespace Collision
 {
-    /* ---------------------------- BOX OBJECT ----------------------------------- */
-    Box::Box(Rectangle rect, bool isSolid) : 
-        _bounds(rect), _solid(isSolid)
+    // -------------------------------- BOX -------------------------------
+
+    Box::Box(Vector2 size, bool solid)
     {
+        this->size = size;
+        this->solid = solid;
+    }
+
+    // -------------------------------- BOXES --------------------------------
+
+    Boxes::Boxes()
+    {
+        _size.reserve(2048);
+        _solid.reserve(2048);
+
+        _sparse_indices.resize(2048, -1); //initialize sparse indices to -1 (invalid)
+        _dense_entities.reserve(2048);
+    }
+
+    void Boxes::add(size_t entity, Vector2 size, bool solid)
+    {
+        add_entity(entity);
+
+        _size.push_back(size);
+        _solid.push_back(solid);
+    }
+
+    void Boxes::remove(size_t entity)
+    {
+        size_t dense = remove_entity(entity);
+
+        if (dense == (size_t)-1) //biggest size_t value
+            return; //entity not found
+
+        size_t last = _dense_entities.size();
+
+        _size[dense] = _size[last];
+        _solid[dense] = _solid[last];
+
+
+
+        //pop back last sprite data
+        _size.pop_back();
+        _solid.pop_back();
+    }
+
+    // -------------------------------- QUAD TREE --------------------------------
+    QuadTree::QuadTree(Rectangle rect, ECS::World& world, const std::vector<size_t>& objects)
+    {
+        //maybe use arena for allocating nodes
+        _root = new QuadNode(0);
+        _root->build(rect, world, objects);
+    }
+
+    QuadTree::~QuadTree()
+    {
+        _root->free_children();
+        delete _root;
+    }
+
+    void QuadTree::search(size_t idx, ECS::World& world, std::vector<size_t>& result)
+    {
+        _root->search(idx, world, result);
     }
 
 
-    /* ---------------------------- - SECTOR GRID OBJECT---------------------------------- - */
-    SectorGrid::SectorGrid(Size map_size, BoxTypes objects, int sector_size) :
-        _sector_size(sector_size)
+    // -------------------------------- QUAD NODE --------------------------------
+    QuadNode::QuadNode(size_t depth) : _bounds({0,0,0,0}), _depth(depth)
     {
-        for (auto box : objects.static_boxes) 
-        {
-            int minX = (int)(box->get_bounds().x / sector_size);
-            int minY = (int)(box->get_bounds().y / sector_size);
-            int maxX = (int)((box->get_bounds().x + box->get_bounds().width) / sector_size);
-            int maxY = (int)((box->get_bounds().y + box->get_bounds().height) / sector_size);
-
-            for (int sx = minX; sx <= maxX; sx++)
-            {
-                for (int sy = minY; sy <= maxY; sy++)
-                {
-                    _sectors[{sx, sy}].static_boxes.push_back(box);
-                }
-            }
-        }
-
-        //check for erros in this fors
-        for (auto box : objects.dynamic_boxes) 
-        {
-            int minX = (int)(box->get_bounds().x / sector_size);
-            int minY = (int)(box->get_bounds().y / sector_size);
-            int maxX = (int)((box->get_bounds().x + box->get_bounds().width) / sector_size);
-            int maxY = (int)((box->get_bounds().y + box->get_bounds().height) / sector_size);
-
-            std::vector<std::pair<int,int>> sector_pos;
-
-            for (int sx = minX; sx <= maxX; sx++) 
-            {
-                for (int sy = minY; sy <= maxY; sy++) 
-                {
-                    _sectors[{sx, sy}].dynamic_boxes.push_back(box);
-                    sector_pos.push_back({ sx, sy });
-                }
-            }
-
-            _object_to_sectors[box] = sector_pos;
-        }
-
+        _objects_idx.reserve(1024);
     }
 
-    BoxTypes SectorGrid::get_boxes_from_sector(std::shared_ptr<Box> box)
+    void QuadNode::split(ECS::World& world, const std::vector<size_t>& objects)
     {
-        std::vector<std::pair<int, int>>& sector_pos = _object_to_sectors[box];
-
-        if (sector_pos.size() == 1)
+        if (!world.storage_registry.contains<Boxes>() ||
+            !world.storage_registry.contains<Movement::Positions>())
         {
-            return _sectors[sector_pos[0]];
+            printf("QuadNode::split(): No box or posistion storage in world!\n");
+            return;
+        }
+        auto& boxes = world.storage_registry.get<Boxes>();
+        auto& positions = world.storage_registry.get<Movement::Positions>();
+
+        float half_w = _bounds.width/2;
+        float half_h = _bounds.height/2;
+
+        Rectangle rects[4];
+
+        rects[0] = { _bounds.x, _bounds.y, half_w, half_h }; //left up
+        rects[1] = { _bounds.x + half_w, _bounds.y, half_w, half_h }; //right up
+        rects[2]= { _bounds.x, _bounds.y + half_h, half_w, half_h }; //left down
+        rects[3]= { _bounds.x + half_w, _bounds.y + half_h, half_w, half_h }; //right down
+
+        std::vector<size_t> split_objects[4];
+
+        for (size_t i = 0; i < objects.size(); i++)
+        {
+            size_t idx = objects[i];
+
+            float pos_x = positions.get_x(idx);
+            float pos_y = positions.get_y(idx); 
+            Vector2 size = boxes.size_at(idx);
+
+            Rectangle rect = { pos_x, pos_y, size.x, size.y };
+
+            bool inserted = false;
+
+            for (size_t j = 0; j < 4; j++)
+            {
+                if (CheckCollisionRecs(rects[j], rect))
+                {
+                    Rectangle colliRect = GetCollisionRec(rects[j], rect);
+
+                    if(colliRect.width == rect.width &&
+                       colliRect.height == rect.height)
+                    {
+                        split_objects[j].push_back(idx);
+                        inserted = true;
+                        break;
+                    }
+
+                }
+            }
+
+            if (!inserted)
+            {
+                _objects_idx.push_back(idx);
+            }
+
+        }
+
+        for (size_t i = 0; i < 4; i++)
+        {
+            _children[i] = new QuadNode(_depth+1);
+            _children[i]->build(rects[i], world, split_objects[i]);
+        }
+    }
+
+    
+    void QuadNode::build(Rectangle rect, ECS::World& world, const std::vector<size_t>& objects)
+    {
+        _bounds = rect;
+        _objects_idx.clear();
+
+        if (objects.size() > QUADTREE_MAX_OBJECTS &&
+            (_depth + 1) <= QUADTREE_MAX_DEPTH)
+        {
+            split(world, objects);
         }
         else
         {
-            BoxTypes boxes_in_sectors;
-            for (auto pos : sector_pos)
-            {
-                BoxTypes& sector_boxes = _sectors[pos];
-                boxes_in_sectors.static_boxes.insert( boxes_in_sectors.static_boxes.end(), sector_boxes.static_boxes.begin(), sector_boxes.static_boxes.end() );
-                
-                boxes_in_sectors.dynamic_boxes.insert( boxes_in_sectors.dynamic_boxes.end(), sector_boxes.dynamic_boxes.begin(), sector_boxes.dynamic_boxes.end() );
-            }
-            return boxes_in_sectors;
+            _objects_idx = objects;
         }
+
+        printf("size of object_idx %zu of node %zu depth\n", _objects_idx.size(), _depth);
     }
 
 
-    /* ---------------------------- COLLISION MANAGER OBJECT ----------------------------------- */
-    
-    CollisionManager::CollisionManager(Size map_size, BoxTypes boxes) :
-        _map_size(map_size), _sector_grid( _map_size, boxes , 100 )
+    void QuadNode::search(size_t idx, ECS::World& world, std::vector<size_t>& result)
     {
-    }
-    
-    //check collision made for boxes 
-    bool CollisionManager::check_box_collision(Box& box1, Box& box2)
-    {
-        return CheckCollisionRecs(box1.get_bounds(), box2.get_bounds());
-    }
-
-    /*
-        Will always offset first box!
-        Player or moving entity has to be in first parameter
-    */
-     //u have to check outside of that methode if there is collision
-    bool CollisionManager::handle_solid_box_collision(Box& movingBox, Box& box)
-    {
-        if (!movingBox.get_solid() || !box.get_solid()) return false;
-
-        //logic of collision handling breaks with small boxes, so ignore them, limit 4x4
-        if((movingBox.get_bounds().width + movingBox.get_bounds().height) < 8 || 
-           (box.get_bounds().width + box.get_bounds().height) < 8) return false;
-
-
-        Rectangle intersection = GetCollisionRec(movingBox.get_bounds(), box.get_bounds());
-
-
-        if (intersection.width >= intersection.height)
+        if (!world.storage_registry.contains<Boxes>() ||
+            !world.storage_registry.contains<Movement::Positions>())
         {
-            if (box.get_bounds().y < movingBox.get_bounds().y) // box is above movingBox
-            {
-                movingBox.set_y(movingBox.get_bounds().y + intersection.height);
-            }
-            else if (box.get_bounds().y > movingBox.get_bounds().y) // box is below movingBox
-            {
-                movingBox.set_y(movingBox.get_bounds().y - intersection.height);
-            }
+            printf("QuadNode::search(): No box or posistion storage in world!\n");
+            return;
         }
 
-        if (intersection.width <= intersection.height)
+        auto& boxes = world.storage_registry.get<Boxes>();
+        auto& positions = world.storage_registry.get<Movement::Positions>();
+
+
+        float pos_x = positions.get_x(idx);
+        float pos_y = positions.get_y(idx); 
+        Vector2 size = boxes.get_size(idx);
+        size_t player_dense = boxes.dense_index(idx);
+
+        Rectangle query_rect = { pos_x, pos_y, size.x, size.y };
+
+        printf("Player dimantions: size: (%f, %f) pos: (%f, %f)\n", query_rect.width, query_rect.height,
+               query_rect.x, query_rect.y);
+
+        //check objects in current node
+        for (size_t i = 0; i < _objects_idx.size(); i++)
         {
-            if (box.get_bounds().x < movingBox.get_bounds().x) // box is left of movingBox
-            {
-                movingBox.set_x(movingBox.get_bounds().x + intersection.height);
-            }
-            else if (box.get_bounds().x > movingBox.get_bounds().x) // box is right of movingBox
-            {
-                movingBox.set_x(movingBox.get_bounds().x - intersection.height);
-            }
-        }
+            size_t obj_idx = _objects_idx[i];
 
-        return true;
-    }
-
-   
-    //u have to check outside of that methode if there is collision
-    Rectangle CollisionManager::handle_solid_box_colli_rect(Box& movingBox, Box & box)
-    {
-       if (!movingBox.get_solid() || !box.get_solid()) return {0,0,0,0};
-
-       //logic of collision handling breaks with small boxes, so ignore them, limit 4x4
-       if((movingBox.get_bounds().width + movingBox.get_bounds().height) < 8 || 
-          (box.get_bounds().width + box.get_bounds().height) < 8) return {0,0,0,0};
-
-
-
-
-        Rectangle intersection = GetCollisionRec(movingBox.get_bounds(), box.get_bounds());
-
-        if (intersection.width >= intersection.height)
-        {
-            if (box.get_bounds().y < movingBox.get_bounds().y) // box is above movingBox
-            {
-                movingBox.set_y(movingBox.get_bounds().y + intersection.height);
-            }
-            else if (box.get_bounds().y > movingBox.get_bounds().y) // box is below movingBox
-            {
-                movingBox.set_y(movingBox.get_bounds().y - intersection.height);
-            }
-        }
-
-        if (intersection.width <= intersection.height)
-        {
-            if (box.get_bounds().x < movingBox.get_bounds().x) // box is left of movingBox
-            {
-                movingBox.set_x(movingBox.get_bounds().x + intersection.width);
-            }
-            else if (box.get_bounds().x > movingBox.get_bounds().x) // box is right of movingBox
-            {
-                movingBox.set_x(movingBox.get_bounds().x - intersection.width);
-            }
-        }
-
-        return intersection;
-
-    }
-
-    std::vector<std::shared_ptr<Box>> CollisionManager::check_entity_collision(Box& entity)
-    {
-        std::vector<std::shared_ptr<Box>> boxesCollided;
-
-       /* for (auto box : _boxes)
-        {
-            if (box.get() == &entity)
+            if (obj_idx == player_dense)
             {
                 continue;
             }
 
-            if (check_box_collision(entity, *box))
+            pos_x = positions.get_x(obj_idx);
+            pos_y = positions.get_y(obj_idx);
+
+            size = boxes.size_at(obj_idx);
+
+            Rectangle colliRect = { pos_x, pos_y, size.x, size.y };
+
+            printf("Colli rect dimantions: size: (%f, %f) pos: (%f, %f)\n", colliRect.width, colliRect.height,
+               colliRect.x, colliRect.y);
+            if (CheckCollisionRecs(query_rect, colliRect))
             {
-                boxesCollided.push_back(box);
+                result.push_back(obj_idx);
             }
-        }*/
+        }
 
-        BoxTypes boxes_in_sectors = _sector_grid.get_boxes_from_sector(std::make_shared<Box>(entity));
-        auto& boxes = boxes_in_sectors.static_boxes;
-        boxes.insert(boxes.end(), boxes_in_sectors.dynamic_boxes.begin(), boxes_in_sectors.dynamic_boxes.end());
+        printf("Result size: %zu\n", result.size());
 
-        for(auto box : boxes)
+        //it it has no children leave
+        if (is_leaf())
         {
-            if (box.get() == &entity)
+            return;
+        }
+
+
+        //check right children
+        for (size_t i = 0; i < 4; i++)
+        {
+            Rectangle child_rect = _children[i]->get_bounds();
+
+            if (CheckCollisionRecs(child_rect, query_rect))
             {
-                continue;
-            }
-            if (check_box_collision(entity, *box))
-            {
-                boxesCollided.push_back(box);
+                _children[i]->search(idx, world, result);
             }
         }
 
 
-        return boxesCollided;
+    }
+
+    void QuadNode::free_children()
+    {
+        for (size_t i = 0; i < 4; i++)
+        {
+            if (_children[i])
+            {
+                _children[i]->free_children();
+                delete _children[i];
+                _children[i] = nullptr;
+
+            }
+        }
     }
 
 
-
-
-/*---------------------------------------------- CODE GRAVEYARD -------------------------------------------------------------*/
-//stuff that might be usefull later but for now i abandoned that idea cuz it was over engeeniered
 }
-
-
-
-
-
-
-
-
-
- 

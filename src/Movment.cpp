@@ -6,11 +6,11 @@ namespace Movement
 
      Positions::Positions()
      {
-        _x.reserve(256);
-        _y.reserve(256);
+        _x.reserve(2048);
+        _y.reserve(2048);
 
-        _sparse_indices.resize(1024, -1); //initialize sparse indices to -1 (invalid)
-        _dense_entities.reserve(1024);
+        _sparse_indices.resize(2048, -1); //initialize sparse indices to -1 (invalid)
+        _dense_entities.reserve(2048);
      }
 
      void Positions::add(size_t entity, float x, float y)
@@ -45,11 +45,11 @@ namespace Movement
 
      Velocities::Velocities()
      {
-        _vx.reserve(256);
-        _vy.reserve(256);
+        _vx.reserve(1024);
+        _vy.reserve(1024);
 
-        _sparse_indices.resize(1024, -1); //initialize sparse indices to -1 (invalid)
-        _dense_entities.reserve(1024);
+        _sparse_indices.resize(2048, -1); //initialize sparse indices to -1 (invalid)
+        _dense_entities.reserve(2048);
      }
 
      void Velocities::add(size_t entity, float x, float y)

@@ -33,6 +33,11 @@ namespace ECS
             return _dense_entities.size();
         }
 
+        const std::vector<size_t>& get_dense_entities()
+        {
+            return _dense_entities;
+        }
+
         virtual void remove(size_t entity) = 0;
         virtual ~Storage() = default;
     };

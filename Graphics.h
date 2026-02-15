@@ -34,7 +34,7 @@ namespace Graphics
         Sprites();
 
         void add(size_t entity, Texture2D& t, Vector2 pos, Vector2 size);
-        void remove(size_t entity);
+        void remove(size_t entity) override;
 
         void set_entity(size_t entity, Texture2D& t, Vector2 pos, Vector2 size)
         {
