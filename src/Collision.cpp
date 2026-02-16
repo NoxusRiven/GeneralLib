@@ -4,11 +4,41 @@
 
 namespace Collision
 {
+    //  -------------------------------- COLLIDED BOXES -------------------------------
+
+    CollidedBoxes::CollidedBoxes()
+    {
+        entity.reserve(1024);
+        pos.reserve(1024);
+        _size.reserve(1024);
+        solid.reserve(1024);
+    }
+
+    void CollidedBoxes::add(size_t e, Rectangle rect, Vector2 offset, bool solid)
+    {
+        entity.push_back(e);
+        pos.push_back({ rect.x, rect.y });
+        this->offset.push_back(offset);
+        _size.push_back({ rect.width, rect.height });
+        this->solid.push_back(solid);
+    }
+
+    void CollidedBoxes::clear()
+    {
+        entity.clear();
+        pos.clear();
+        offset.clear();
+        _size.clear();
+        solid.clear();
+    }
+
+
     // -------------------------------- BOX -------------------------------
 
-    Box::Box(Vector2 size, bool solid)
+    Box::Box(Vector2 size, Vector2 offset, bool solid)
     {
         this->size = size;
+        this->offset = offset;
         this->solid = solid;
     }
 
@@ -23,7 +53,7 @@ namespace Collision
         _dense_entities.reserve(2048);
     }
 
-    void Boxes::add(size_t entity, Vector2 size, bool solid)
+    void Boxes::add(size_t entity, Vector2 size, Vector2 offset, bool solid)
     {
         add_entity(entity);
 
@@ -64,9 +94,9 @@ namespace Collision
         delete _root;
     }
 
-    void QuadTree::search(size_t idx, ECS::World& world, std::vector<size_t>& result)
+    void QuadTree::search(size_t idx, ECS::World& world, CollidedBoxes& colli_boxes)
     {
-        _root->search(idx, world, result);
+        _root->search(idx, world, colli_boxes);
     }
 
 
@@ -162,7 +192,7 @@ namespace Collision
     }
 
 
-    void QuadNode::search(size_t idx, ECS::World& world, std::vector<size_t>& result)
+    void QuadNode::search(size_t idx, ECS::World& world, CollidedBoxes& colli_boxes)
     {
         if (!world.storage_registry.contains<Boxes>() ||
             !world.storage_registry.contains<Movement::Positions>())
@@ -178,39 +208,37 @@ namespace Collision
         float pos_x = positions.get_x(idx);
         float pos_y = positions.get_y(idx); 
         Vector2 size = boxes.get_size(idx);
-        size_t player_dense = boxes.dense_index(idx);
+        size_t obj_dense = boxes.dense_index(idx);
 
         Rectangle query_rect = { pos_x, pos_y, size.x, size.y };
-
-        printf("Player dimantions: size: (%f, %f) pos: (%f, %f)\n", query_rect.width, query_rect.height,
-               query_rect.x, query_rect.y);
 
         //check objects in current node
         for (size_t i = 0; i < _objects_idx.size(); i++)
         {
             size_t obj_idx = _objects_idx[i];
 
-            if (obj_idx == player_dense)
+            if (obj_idx == obj_dense)
             {
                 continue;
             }
 
             pos_x = positions.get_x(obj_idx);
             pos_y = positions.get_y(obj_idx);
+            bool solid = boxes.get_solid(obj_idx);
+            Vector2 offset = boxes.get_offset(obj_idx);
 
             size = boxes.size_at(obj_idx);
 
-            Rectangle colliRect = { pos_x, pos_y, size.x, size.y };
+            Rectangle rect = { pos_x, pos_y, size.x, size.y };
 
-            printf("Colli rect dimantions: size: (%f, %f) pos: (%f, %f)\n", colliRect.width, colliRect.height,
-               colliRect.x, colliRect.y);
-            if (CheckCollisionRecs(query_rect, colliRect))
+            if (CheckCollisionRecs(query_rect, rect))
             {
-                result.push_back(obj_idx);
+                Rectangle colli_rect = GetCollisionRec(query_rect, rect);
+                colli_boxes.add(obj_idx, colli_rect, offset, solid);
             }
         }
 
-        printf("Result size: %zu\n", result.size());
+        //printf("Result size: %zu\n", result.size());
 
         //it it has no children leave
         if (is_leaf())
@@ -226,7 +254,7 @@ namespace Collision
 
             if (CheckCollisionRecs(child_rect, query_rect))
             {
-                _children[i]->search(idx, world, result);
+                _children[i]->search(idx, world, colli_boxes);
             }
         }
 
