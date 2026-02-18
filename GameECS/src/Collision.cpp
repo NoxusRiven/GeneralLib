@@ -1,5 +1,5 @@
-#include "..\Collision.h"
-#include "..\Movment.h"
+#include "Collision.h"
+#include "Movment.h"
 
 
 namespace Collision
@@ -47,6 +47,7 @@ namespace Collision
     Boxes::Boxes()
     {
         _size.reserve(2048);
+        _offset.reserve(2048);
         _solid.reserve(2048);
 
         _sparse_indices.resize(2048, -1); //initialize sparse indices to -1 (invalid)
@@ -58,6 +59,7 @@ namespace Collision
         add_entity(entity);
 
         _size.push_back(size);
+        _offset.push_back(offset);
         _solid.push_back(solid);
     }
 
@@ -71,6 +73,7 @@ namespace Collision
         size_t last = _dense_entities.size();
 
         _size[dense] = _size[last];
+        _offset[dense] = _offset[last];
         _solid[dense] = _solid[last];
 
 
@@ -229,7 +232,7 @@ namespace Collision
 
             size = boxes.size_at(obj_idx);
 
-            Rectangle rect = { pos_x, pos_y, size.x, size.y };
+            Rectangle rect = { pos_x - offset.x, pos_y - offset.y, size.x, size.y };
 
             if (CheckCollisionRecs(query_rect, rect))
             {

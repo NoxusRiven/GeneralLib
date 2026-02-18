@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -18,11 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\systems.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\systems.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{44b4973d-3446-4440-8e20-38d8aaf73214}</ProjectGuid>
-    <RootNamespace>GameLib</RootNamespace>
+    <ProjectGuid>{27c78bc7-b801-4819-81ff-11cdb5cbbf2c}</ProjectGuid>
+    <RootNamespace>Systems</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -108,11 +114,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderOutputFile />
-      <LanguageStandard>stdcpp23</LanguageStandard>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Lib\Core\include;$(SolutionDir)Lib\GameECS\include;$(SolutionDir)Lib\Systems\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -137,26 +142,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Arena.h" />
-    <ClInclude Include="Collision.h" />
-    <ClInclude Include="Movment.h" />
-    <ClInclude Include="Pool.h" />
-    <ClInclude Include="JSON_Parser.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="ECS.h" />
-    <ClInclude Include="Storage.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Arena.cpp" />
-    <ClCompile Include="src\Collision.cpp" />
-    <ClCompile Include="src\JSON_Parser.cpp" />
-    <ClCompile Include="src\Graphics.cpp" />
-    <ClCompile Include="src\ECS.cpp" />
-    <ClCompile Include="src\Movment.cpp" />
-    <ClCompile Include="src\Storage.cpp" />
-    <ClCompile Include="test\JSON\test-json.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

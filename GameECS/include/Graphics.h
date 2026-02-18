@@ -100,8 +100,8 @@ namespace Graphics
         static TextureManager& instance();
 
         //allocationg is up to user, not new as a default allocator
-        Sprite* load_texture(std::string path, Memory::Arena& mem_alloc);
-        std::unordered_map<std::string, Sprite*> load_texture(std::string path, std::string atlas_json, Memory::Arena& mem_alloc);
+        Sprite* load_texture(std::string path, Memory::Arena& arena_alloc);
+        std::unordered_map<std::string, Sprite*> load_texture(std::string path, std::string atlas_json, Memory::Arena& arena_alloc);
 
         void load_texture(size_t entity, std::string path, Sprites& sprites);
 

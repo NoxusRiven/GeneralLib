@@ -1,5 +1,5 @@
-#include "..\Graphics.h"
-#include "..\JSON_Parser.h"
+#include "Graphics.h"
+#include "JSON_Parser.h"
 
 namespace Graphics
 {

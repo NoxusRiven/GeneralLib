@@ -1,4 +1,4 @@
-#include "..\ECS.h"
+#include "ECS.h"
 
 namespace ECS
 {

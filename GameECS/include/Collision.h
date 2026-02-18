@@ -88,7 +88,7 @@ namespace Collision
             return _size[idx];
         }
 
-        Vector2 get_offset(size_t idx)
+        Vector2 offset_at(size_t idx)
         {
             return _offset[idx];
         }

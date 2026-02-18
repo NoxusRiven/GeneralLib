@@ -1,4 +1,4 @@
-#include "..\Storage.h"
+#include "Storage.h"
 
 namespace ECS
 {
